@@ -1,17 +1,19 @@
 <template>
   <div id="app">
-    <!-- <HelloWorld msg="Welcome to Your Vue.js App" /> -->
     <router-view />
   </div>
 </template>
 
 <script>
-// import HelloWorld from "./components/HelloWorld.vue";
-
 export default {
   name: "App",
-  components: {
-    // HelloWorld,
-  },
+  components: {},
 };
 </script>
+
+<style scoped>
+#app {
+  padding: 2rem;
+  height: 100%;
+}
+</style>
