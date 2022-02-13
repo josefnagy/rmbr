@@ -1,6 +1,6 @@
 <template>
   <header>
-    <div class="logo">
+    <router-link class="logo" to="/">
       <span class="logo-title">rmbr</span>
       <span class="logo-dot"
         ><svg width="17" height="17">
@@ -10,7 +10,7 @@
             style="fill: rgb(255, 109, 4); stroke-width: 0"
           /></svg
       ></span>
-    </div>
+    </router-link>
     <Navbar />
   </header>
 </template>
@@ -38,6 +38,8 @@ header {
 
 .logo {
   font-family: $text-heading;
+  color: $black;
+  text-decoration: none;
   font-size: 7.5rem;
   text-transform: uppercase;
   font-weight: 600;

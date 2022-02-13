@@ -2,7 +2,16 @@
   <div class="page-wrapper">
     <Header />
     <div class="wrapper">
-      <div class="content">
+      <DecksList v-show="!noDecks" :decks="state.decks"></DecksList>
+      <button
+        v-show="!noDecks"
+        class="btn btn-add"
+        @click="showAddDeck = !showAddDeck"
+        ref="btn"
+      >
+        +
+      </button>
+      <div v-show="noDecks" class="content">
         <div class="text-content">
           <h3>No Decks!</h3>
           <p>Let's add some, by using the button bellow.</p>
@@ -38,15 +47,20 @@
 
 <script>
 import Header from "@/components/layout/Header";
+import DecksList from "@/components/DecksList";
 import BackgroundImage from "@/components/ui/BackgroundImage";
 import Modal from "@/components/ui/Modal";
+import { store } from "@/store/appStore";
 import { Portal } from "@linusborg/vue-simple-portal";
+
 export default {
   name: "Decks",
-  components: { Header, BackgroundImage, Portal, Modal },
+  components: { Header, BackgroundImage, Portal, Modal, DecksList },
   data() {
     return {
       showAddDeck: false,
+      noDecks: false,
+      state: store.state,
     };
   },
   methods: {
