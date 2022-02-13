@@ -2,6 +2,7 @@ import Vue from "vue";
 import Router from "vue-router";
 import Decks from "@/views/Decks";
 import Login from "@/views/Login";
+import AddDeck from "@/components/layout/AddDeck";
 
 Vue.use(Router);
 
@@ -13,6 +14,13 @@ const router = new Router({
       path: "/",
       name: "decks",
       component: Decks,
+      children: [
+        {
+          path: "decks/add",
+          name: "addDeck",
+          component: AddDeck,
+        },
+      ],
     },
     {
       path: "/login",

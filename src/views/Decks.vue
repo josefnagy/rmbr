@@ -3,44 +3,23 @@
     <Header />
     <div class="wrapper">
       <DecksList v-show="!noDecks" :decks="state.decks"></DecksList>
-      <button
-        v-show="!noDecks"
-        class="btn btn-add"
-        @click="showAddDeck = !showAddDeck"
-        ref="btn"
-      >
+      <button v-show="!noDecks" class="btn btn-add" @click="onAddDeck">
         +
       </button>
-      <div v-show="noDecks" class="content">
+      <div v-if="noDecks" class="content">
         <div class="text-content">
           <h3>No Decks!</h3>
           <p>Let's add some, by using the button bellow.</p>
-          <button
-            class="btn btn-add"
-            @click="showAddDeck = !showAddDeck"
-            ref="btn"
-          >
-            +
-          </button>
+          <button class="btn btn-add" @click="onAddDeck">+</button>
         </div>
-        <Portal v-if="showAddDeck">
-          <Modal
-            heading="Add Deck..."
-            v-closable="{
-              exclude: ['btn'],
-              handler: 'onClose',
-            }"
-          >
-            <div class="addDeck">
-              <input type="text" class="textInput" placeholder="Deck name" />
-              <button class="btn">Add Deck</button>
-            </div>
-          </Modal>
-        </Portal>
+
         <div class="img">
           <BackgroundImage />
         </div>
       </div>
+    </div>
+    <div v-if="isAddDeckOpen" @click.self="close" class="overlay">
+      <router-view />
     </div>
   </div>
 </template>
@@ -49,13 +28,12 @@
 import Header from "@/components/layout/Header";
 import DecksList from "@/components/DecksList";
 import BackgroundImage from "@/components/ui/BackgroundImage";
-import Modal from "@/components/ui/Modal";
+
 import { store } from "@/store/appStore";
-import { Portal } from "@linusborg/vue-simple-portal";
 
 export default {
   name: "Decks",
-  components: { Header, BackgroundImage, Portal, Modal, DecksList },
+  components: { Header, BackgroundImage, DecksList },
   data() {
     return {
       showAddDeck: false,
@@ -64,21 +42,29 @@ export default {
     };
   },
   methods: {
-    onClose() {
-      this.showAddDeck = false;
-    },
     onAddDeck() {
-      this.showAddDeck = false;
+      this.$router.push({ name: "addDeck" });
+    },
+    close() {
+      this.$router.push({ name: "decks" });
+    },
+  },
+  computed: {
+    isAddDeckOpen() {
+      return this.$route.name === "addDeck";
     },
   },
 };
 </script>
 
 <style scoped>
-.addDeck {
-  display: flex;
-  flex-direction: column;
+.overlay {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.76);
+  width: 100%;
+  height: 100%;
 }
+
 .page-wrapper {
   position: relative;
   height: 100%;

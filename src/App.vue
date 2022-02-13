@@ -13,7 +13,7 @@ export default {
 
 <style scoped>
 #app {
-  padding: 2rem;
+  /* padding: 2rem; */
   height: 100%;
 }
 </style>
