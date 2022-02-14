@@ -2,7 +2,7 @@
   <div class="page-wrapper">
     <Header />
     <div class="wrapper">
-      <DecksList v-show="!noDecks" :decks="state.decks"></DecksList>
+      <DecksList v-show="!noDecks" :decks="deck.decks"></DecksList>
       <button v-show="!noDecks" class="btn btn-add" @click="onAddDeck">
         +
       </button>
@@ -29,7 +29,7 @@ import Header from "@/components/layout/Header";
 import DecksList from "@/components/DecksList";
 import BackgroundImage from "@/components/ui/BackgroundImage";
 
-import { store } from "@/store/appStore";
+import { mapState } from "vuex";
 
 export default {
   name: "Decks",
@@ -38,7 +38,6 @@ export default {
     return {
       showAddDeck: false,
       noDecks: false,
-      state: store.state,
     };
   },
   methods: {
@@ -53,6 +52,7 @@ export default {
     isAddDeckOpen() {
       return this.$route.name === "addDeck";
     },
+    ...mapState(["deck"]),
   },
 };
 </script>
