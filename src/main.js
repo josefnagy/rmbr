@@ -3,6 +3,7 @@ import App from "./App.vue";
 import router from "@/router";
 import store from "@/store/store";
 
+import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/700.css";
 import "@fontsource/archivo/variable-full.css";

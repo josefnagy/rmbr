@@ -1,7 +1,8 @@
 import Vue from "vue";
 import Router from "vue-router";
 import Decks from "@/views/Decks";
-import Login from "@/views/Login";
+import LoginUser from "@/views/LoginUser";
+import RegisterUser from "@/views/RegisterUser";
 import AddDeck from "@/components/layout/AddDeck";
 
 Vue.use(Router);
@@ -25,7 +26,12 @@ const router = new Router({
     {
       path: "/login",
       name: "login",
-      component: Login,
+      component: LoginUser,
+    },
+    {
+      path: "/register",
+      name: "registerUser",
+      component: RegisterUser,
     },
   ],
 });
