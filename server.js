@@ -2,7 +2,14 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const fs = require("fs");
+
+const pool = require("./src/lib/db.js");
+const {
+  hashPassword,
+  validateEmail,
+  validatePassword,
+  generateAccessToken,
+} = require("./src/lib/auth");
 
 const app = express();
 
@@ -10,6 +17,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
+  console.log(require("crypto").randomBytes(64).toString("hex"));
   res.json({
     message: "Welcome to the API.",
   });
@@ -27,42 +35,77 @@ app.get("/", (req, res) => {
 //   });
 // });
 
-app.post("/register", (req, res) => {
+app.post("/register", async (req, res) => {
   if (req.body) {
-    const user = {
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password,
-      // In a production app, you'll want to encrypt the password
-    };
-    const data = JSON.stringify(user, null, 2);
+    const email = req.body.email;
+    const password = req.body.password;
+    const errorsToSend = [];
 
-    var dbUserEmail = require("./db/user.json").email;
-    var errorsToSend = [];
+    if (!validateEmail(email)) {
+      errorsToSend.push("Invalid email");
+      // res.status(422).json({ error: "invalid email format" });
+    }
 
-    if (dbUserEmail === user.email) {
-      errorsToSend.push("An account with this email already exists.");
+    if (!validatePassword(password)) {
+      errorsToSend.push("Password's too simple.");
+      // res.status(422).json({ error: "Password's too simple." });
     }
-    if (user.password.length < 5) {
-      errorsToSend.push("Password too short.");
+
+    const uniqueEmailSql = "SELECT email FROM users WHERE email = $1";
+    const uniqueEmail = await pool.query(uniqueEmailSql, [email]);
+
+    if (uniqueEmail.rowCount === 1) {
+      errorsToSend.push("Email already exists.");
+      // res.status(422).json({ error: "Email already exists." });
     }
-    if (errorsToSend.length > 0) {
-      res.status(400).json({ errors: errorsToSend });
+
+    if (errorsToSend.length !== 0) {
+      console.log(errorsToSend);
+      res.status(422).json({ error: errorsToSend });
     } else {
-      fs.writeFile("./db/user.json", data, (err) => {
-        if (err) {
-          console.log(err + data);
-        } else {
-          const token = jwt.sign({ user }, "the_secret_key");
-          // In a production app, you'll want the secret key to be an environment variable
-          res.json({
-            token,
-            email: user.email,
-            name: user.name,
-          });
-        }
-      });
+      const hashedPassword = await hashPassword(req.body.password);
+
+      const user = {
+        email: req.body.email,
+        password: hashedPassword,
+      };
+
+      const sql = "INSERT INTO users (email, password) VALUES ($1, $2)";
+
+      const sqlResult = await pool.query(sql, [user.email, user.password]);
+      const token = generateAccessToken(user);
+
+      res.json({ token, email: user.email });
     }
+
+    // const data = JSON.stringify(user, null, 2);
+
+    // var dbUserEmail = require("./db/user.json").email;
+    // var errorsToSend = [];
+
+    // if (dbUserEmail === user.email) {
+    //   errorsToSend.push("An account with this email already exists.");
+    // }
+    // if (user.password.length < 5) {
+    //   errorsToSend.push("Password too short.");
+    // }
+    // if (errorsToSend.length > 0) {
+    //   res.status(400).json({ errors: errorsToSend });
+    // } else {
+    //   fs.writeFile("./db/user.json", data, (err) => {
+    //     if (err) {
+    //       console.log(err + data);
+    //     } else {
+    //       const token = jwt.sign({ user }, "the_secret_key");
+    //       // In a production app, you'll want the secret key to be an environment variable
+    //       res.json({
+    //         token,
+    //         email: user.email,
+    //         name: user.name,
+    //       });
+    //     }
+    //   });
+    // }
   } else {
     res.sendStatus(400);
   }

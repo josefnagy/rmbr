@@ -38,7 +38,7 @@
           type="password"
           placeholder="Your Password Again"
           class="textInput"
-          v-model.lazy="passwordAgain"
+          v-model.lazy="passwordCheck"
         />
         <button type="submit" class="btn">Register User</button>
       </form>
@@ -53,15 +53,16 @@ export default {
     return {
       email: "",
       password: "",
-      passwordAgain: "",
+      passwordCheck: "",
       errors: [],
     };
   },
   methods: {
     onRegister() {
-      if (this.password !== this.passwordAgain) {
+      if (this.password !== this.passwordCheck) {
         this.errors.push("Passwords doesnt match");
         console.log("passwords doesnt match");
+        return;
       }
       // check if email is valid
 
@@ -69,7 +70,6 @@ export default {
       this.$store.dispatch("user/register", {
         email: this.email,
         password: this.password,
-        passwordAgain: this.passwordAgain,
       });
     },
   },

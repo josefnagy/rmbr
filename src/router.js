@@ -7,7 +7,7 @@ import AddDeck from "@/components/layout/AddDeck";
 
 Vue.use(Router);
 
-const router = new Router({
+export const router = new Router({
   base: process.env.BASE_URL,
   mode: "history",
   routes: [

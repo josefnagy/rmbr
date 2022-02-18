@@ -1,4 +1,5 @@
 import axios from "axios";
+import { router } from "@/router";
 
 export const namespaced = true;
 
@@ -12,6 +13,7 @@ export const mutations = {
     localStorage.setItem("user", JSON.stringify(userData));
     axios.defaults.headers.common["Authorization"] = `Bearer ${userData.token}`;
   },
+
   CLEAR_USER_DATA() {
     localStorage.removeItem("user");
     location.reload();
@@ -20,12 +22,12 @@ export const mutations = {
 
 export const actions = {
   register({ commit }, credentials) {
-    // return axios
-    //   .post("//localhost:3000/register", credentials)
-    //   .then(({ data }) => {
-    //     commit("SET_USER_DATA", data);
-    //   });
-    console.log(credentials);
+    return axios
+      .post("//localhost:3000/register", credentials)
+      .then(({ data }) => {
+        commit("SET_USER_DATA", data);
+        router.push({ name: "decks" });
+      });
   },
 
   login({ commit }, credentials) {
