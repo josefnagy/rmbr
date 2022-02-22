@@ -1,5 +1,4 @@
 import axios from "axios";
-import { router } from "@/router";
 
 export const namespaced = true;
 
@@ -15,24 +14,28 @@ export const mutations = {
   },
 
   CLEAR_USER_DATA() {
+    state.user = null;
     localStorage.removeItem("user");
-    location.reload();
+    axios.defaults.headers.common["Authorization"] = null;
+
+    // location.reload();
+    // console.log("qq");
   },
 };
 
 export const actions = {
   register({ commit }, credentials) {
     return axios
-      .post("//localhost:3000/register", credentials)
+      .post("//localhost:3000/api/register", credentials)
       .then(({ data }) => {
         commit("SET_USER_DATA", data);
-        router.push({ name: "decks" });
+        // router.push({ name: "decks" });
       });
   },
 
   login({ commit }, credentials) {
     return axios
-      .post("//localhost:3000/login", credentials)
+      .post("//localhost:3000/api/login", credentials)
       .then(({ data }) => {
         commit("SET_USER_DATA", data);
       });

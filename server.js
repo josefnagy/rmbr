@@ -3,12 +3,15 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 
+require("dotenv").config();
+
 const pool = require("./src/lib/db.js");
 const {
   hashPassword,
   validateEmail,
   validatePassword,
   generateAccessToken,
+  verifyPassword,
 } = require("./src/lib/auth");
 
 const app = express();
@@ -16,26 +19,40 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-app.get("/", (req, res) => {
-  console.log(require("crypto").randomBytes(64).toString("hex"));
+app.get("/api", (req, res) => {
+  // console.log(require("crypto").randomBytes(64).toString("hex"));
   res.json({
     message: "Welcome to the API.",
   });
 });
 
-// app.get("/dashboard", verifyToken, (req, res) => {
-//   jwt.verify(req.token, "the_secret_key", (err) => {
-//     if (err) {
-//       res.sendStatus(401);
-//     } else {
-//       res.json({
-//         events: events,
-//       });
-//     }
-//   });
-// });
+app.get("/api/decks", verifyToken, async (req, res) => {
+  console.log("*********---- -- CALLING /api/decks -------- *******");
+  let tokenVerified = false;
+  jwt.verify(req.token, process.env.TOKEN_SECRET, (err) => {
+    if (err) {
+      res.sendStatus(401);
+    } else {
+      tokenVerified = true;
+    }
+  });
+  if (tokenVerified) {
+    const sql1 =
+      "SELECT name, COUNT(*) FROM users " +
+      "INNER JOIN decks ON users.id = decks.user_id " +
+      "INNER JOIN cards ON users.id = cards.user_id " +
+      "AND cards.deck_id = decks.id " +
+      "WHERE users.id = $1 " +
+      "GROUP BY name";
 
-app.post("/register", async (req, res) => {
+    const result = await pool.query(sql1, [req.query.id]);
+
+    // console.log(result.rows);
+    res.json({ decks: result.rows });
+  }
+});
+
+app.post("/api/register", async (req, res) => {
   if (req.body) {
     const email = req.body.email;
     const password = req.body.password;
@@ -62,6 +79,8 @@ app.post("/register", async (req, res) => {
     if (errorsToSend.length !== 0) {
       console.log(errorsToSend);
       res.status(422).json({ error: errorsToSend });
+
+      // await pool.end();
     } else {
       const hashedPassword = await hashPassword(req.body.password);
 
@@ -70,62 +89,54 @@ app.post("/register", async (req, res) => {
         password: hashedPassword,
       };
 
-      const sql = "INSERT INTO users (email, password) VALUES ($1, $2)";
+      const sql =
+        "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id";
 
       const sqlResult = await pool.query(sql, [user.email, user.password]);
+      const id = sqlResult.rows[0].id;
       const token = generateAccessToken(user);
 
-      res.json({ token, email: user.email });
+      res.json({ token, id, email: user.email });
+      // await pool.end();
     }
-
-    // const data = JSON.stringify(user, null, 2);
-
-    // var dbUserEmail = require("./db/user.json").email;
-    // var errorsToSend = [];
-
-    // if (dbUserEmail === user.email) {
-    //   errorsToSend.push("An account with this email already exists.");
-    // }
-    // if (user.password.length < 5) {
-    //   errorsToSend.push("Password too short.");
-    // }
-    // if (errorsToSend.length > 0) {
-    //   res.status(400).json({ errors: errorsToSend });
-    // } else {
-    //   fs.writeFile("./db/user.json", data, (err) => {
-    //     if (err) {
-    //       console.log(err + data);
-    //     } else {
-    //       const token = jwt.sign({ user }, "the_secret_key");
-    //       // In a production app, you'll want the secret key to be an environment variable
-    //       res.json({
-    //         token,
-    //         email: user.email,
-    //         name: user.name,
-    //       });
-    //     }
-    //   });
-    // }
   } else {
     res.sendStatus(400);
   }
 });
 
-app.post("/login", (req, res) => {
-  const userDB = fs.readFileSync("./db/user.json");
-  const userInfo = JSON.parse(userDB);
-  if (
-    req.body &&
-    req.body.email === userInfo.email &&
-    req.body.password === userInfo.password
-  ) {
-    const token = jwt.sign({ userInfo }, "the_secret_key");
-    // In a production app, you'll want the secret key to be an environment variable
-    res.json({
-      token,
-      email: userInfo.email,
-      name: userInfo.name,
-    });
+app.post("/api/login", async (req, res) => {
+  console.log("*********---- -- CALLING /api/login -------- *******");
+  if (req.body) {
+    const enteredEmail = req.body.email;
+    const enteredPassword = req.body.password;
+    const errorsToSend = [];
+
+    const findUserSQL =
+      "SELECT id, email, password FROM users WHERE email = $1";
+    const findUserResult = await pool.query(findUserSQL, [enteredEmail]);
+
+    const password = findUserResult.rows[0].password;
+    const id = findUserResult.rows[0].id;
+
+    const isValidPassword = await verifyPassword(enteredPassword, password);
+
+    if (!isValidPassword) {
+      errorsToSend.push("Password is invalid");
+      console.log("password is WRONG");
+
+      res.status(422).json({ error: errorsToSend });
+      // await pool.end();
+    } else {
+      console.log("password is correct");
+
+      const token = generateAccessToken({
+        email: enteredEmail,
+        password: enteredPassword,
+      });
+
+      res.json({ token, id, email: enteredEmail });
+      // await pool.end();
+    }
   } else {
     res.status(401).json({ error: "Invalid login. Please try again." });
   }

@@ -11,6 +11,9 @@
           >Settings</router-link
         >
       </li>
+      <li>
+        <button class="btn" @click="onLogout">Logout</button>
+      </li>
     </ul>
   </nav>
 </template>
@@ -18,6 +21,12 @@
 <script>
 export default {
   name: "Navbar",
+  methods: {
+    onLogout() {
+      this.$store.dispatch("user/logout");
+      this.$router.push({ name: "login" });
+    },
+  },
 };
 </script>
 
@@ -38,5 +47,8 @@ export default {
   text-decoration-color: $primary;
   text-decoration-thickness: 0.4rem;
   text-underline-offset: 0.5rem;
+}
+.btn {
+  margin-top: 0 !important;
 }
 </style>

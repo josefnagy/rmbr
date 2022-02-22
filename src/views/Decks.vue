@@ -1,8 +1,8 @@
 <template>
   <div class="page-wrapper">
     <Header />
-    <div class="wrapper">
-      <DecksList v-show="!noDecks" :decks="deck.decks"></DecksList>
+    <div class="wrapper" v-if="!isLoading">
+      <DecksList v-show="!noDecks" :decks="$store.state.deck.decks"></DecksList>
       <button v-show="!noDecks" class="btn btn-add" @click="onAddDeck">
         +
       </button>
@@ -18,6 +18,7 @@
         </div>
       </div>
     </div>
+    <p v-else>Loading ...</p>
     <div v-if="isAddDeckOpen" @click.self="close" class="overlay">
       <router-view />
     </div>
@@ -37,9 +38,14 @@ export default {
   data() {
     return {
       showAddDeck: false,
-      noDecks: false,
+      isLoading: true,
     };
   },
+  created() {
+    this.$store.dispatch("deck/getDecks", this.$store.state.user.user.id);
+    this.isLoading = false;
+  },
+
   methods: {
     onAddDeck() {
       this.$router.push({ name: "addDeck" });
@@ -52,7 +58,10 @@ export default {
     isAddDeckOpen() {
       return this.$route.name === "addDeck";
     },
-    ...mapState(["deck"]),
+    noDecks() {
+      return this.$store.state.deck.decks === 0;
+    },
+    ...mapState(["deck", "user"]),
   },
 };
 </script>
@@ -87,6 +96,10 @@ export default {
 .text-content {
   text-align: center;
   margin-bottom: 3rem;
+}
+
+.btn-add {
+  margin-top: 2rem !important;
 }
 
 h3 {

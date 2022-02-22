@@ -42,6 +42,10 @@
         />
         <button type="submit" class="btn">Register User</button>
       </form>
+      <p class="acc">
+        Already have an account?
+        <router-link :to="{ path: 'login' }">Login!</router-link>
+      </p>
     </div>
   </div>
 </template>
@@ -67,10 +71,17 @@ export default {
       // check if email is valid
 
       // dispatch action
-      this.$store.dispatch("user/register", {
-        email: this.email,
-        password: this.password,
-      });
+      this.$store
+        .dispatch("user/register", {
+          email: this.email,
+          password: this.password,
+        })
+        .then(() => {
+          this.$router.push({ name: "decks" });
+        })
+        .catch((err) => {
+          this.error = err.response.data.error;
+        });
     },
   },
 };
@@ -115,8 +126,10 @@ export default {
 }
 
 .form-wrapper {
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .form {
@@ -140,6 +153,16 @@ export default {
     font-size: 1.8rem;
     width: 17rem;
     align-self: flex-end;
+  }
+}
+.acc {
+  margin-top: 4rem;
+  font-size: 1.2rem;
+  color: $medium-gray;
+
+  a {
+    color: $primary;
+    text-decoration: none;
   }
 }
 </style>

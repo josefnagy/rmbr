@@ -15,6 +15,7 @@ export const router = new Router({
       path: "/",
       name: "decks",
       component: Decks,
+      meta: { requiresAuth: true },
       children: [
         {
           path: "decks/add",
@@ -34,6 +35,16 @@ export const router = new Router({
       component: RegisterUser,
     },
   ],
+});
+
+router.beforeEach((to, from, next) => {
+  const loggedIn = localStorage.getItem("user");
+
+  if (to.matched.some((record) => record.meta.requiresAuth) && !loggedIn) {
+    next({ name: "login" });
+  } else {
+    next();
+  }
 });
 
 export default router;
