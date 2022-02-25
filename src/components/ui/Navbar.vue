@@ -12,7 +12,7 @@
         >
       </li>
       <li>
-        <button class="btn" @click="onLogout">Logout</button>
+        <button class="btn btn-primary" @click="onLogout">Logout</button>
       </li>
     </ul>
   </nav>

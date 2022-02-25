@@ -2,15 +2,19 @@
   <div class="page-wrapper">
     <Header />
     <div class="wrapper" v-if="!isLoading">
-      <DecksList v-show="!noDecks" :decks="$store.state.deck.decks"></DecksList>
-      <button v-show="!noDecks" class="btn btn-add" @click="onAddDeck">
+      <DecksList v-show="!noDecks" :decks="deck.decks"></DecksList>
+      <button
+        v-show="!noDecks"
+        class="btn btn-primary btn-add"
+        @click="onAddDeck"
+      >
         +
       </button>
       <div v-if="noDecks" class="content">
         <div class="text-content">
           <h3>No Decks!</h3>
           <p>Let's add some, by using the button bellow.</p>
-          <button class="btn btn-add" @click="onAddDeck">+</button>
+          <button class="btn btn-primary btn-add" @click="onAddDeck">+</button>
         </div>
 
         <div class="img">
@@ -30,6 +34,8 @@ import Header from "@/components/layout/Header";
 import DecksList from "@/components/DecksList";
 import BackgroundImage from "@/components/ui/BackgroundImage";
 
+import dayjs from "dayjs";
+
 import { mapState } from "vuex";
 
 export default {
@@ -42,8 +48,9 @@ export default {
     };
   },
   created() {
-    this.$store.dispatch("deck/getDecks", this.$store.state.user.user.id);
+    this.$store.dispatch("deck/getDecks", this.user.user.id);
     this.isLoading = false;
+    console.log(dayjs(Date.now()).toISOString());
   },
 
   methods: {

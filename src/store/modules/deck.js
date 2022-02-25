@@ -3,6 +3,7 @@ import axios from "axios";
 export const namespaced = true;
 
 export const state = {
+  cookies: false,
   decks: [
     // {
     //   name: "Javascript",
@@ -20,15 +21,20 @@ export const mutations = {
   },
 
   CLEAR_DECKS_DATA() {
-    state.decks = [];
+    state.decks = null;
     localStorage.removeItem("decks");
+  },
+
+  ADD_DECK(state, deck) {
+    state.decks.push(deck);
+    localStorage.setItem("decks", JSON.stringify(state.decks));
   },
 };
 export const actions = {
-  getDecks({ commit }, userId) {
+  getDecks({ commit, state }, userId) {
     const decksString = localStorage.getItem("decks");
     const decksData = JSON.parse(decksString);
-    if (decksData) {
+    if (state.cookies && decksData && decksData.length !== 0) {
       const decksData = JSON.parse(decksString);
       commit("SET_DECKS_DATA", decksData);
     } else {
@@ -40,6 +46,14 @@ export const actions = {
           commit("SET_DECKS_DATA", data.decks);
         });
     }
+  },
+  addDeck({ commit }, { deckName, userId }) {
+    // console.log(userId);
+    return axios
+      .post("//localhost:3000/api/decks", { deckName, userId })
+      .then((res) => {
+        commit("ADD_DECK", res.data);
+      });
   },
 };
 export const getters = {};

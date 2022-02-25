@@ -45,17 +45,35 @@ ul {
 .btn {
   padding: 0.5rem 1.5rem;
   margin-top: 2rem;
+
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.btn-primary {
   background-color: $black;
   border: none;
   border-radius: 0.5rem;
   color: $white;
   font-weight: 700;
-  transition: all 0.3s;
-  cursor: pointer;
 }
 
-.btn:hover {
+.btn-primary:hover {
   background-color: $primary;
+}
+
+.btn-secondary {
+  background-color: $white;
+  border: none;
+  border-radius: 0.5rem;
+  color: $black;
+  font-weight: 400;
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
+}
+
+.btn-secondary:hover {
+  background-color: $primary-light;
+  color: $white;
 }
 
 .textInput {

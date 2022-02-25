@@ -2,6 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const _ = require("lodash");
 
 require("dotenv").config();
 
@@ -38,17 +39,56 @@ app.get("/api/decks", verifyToken, async (req, res) => {
   });
   if (tokenVerified) {
     const sql1 =
-      "SELECT name, COUNT(*) FROM users " +
+      "SELECT decks.id, name, " +
+      "COUNT(*) FILTER (WHERE cards.due_date < now()) AS cards_to_study " +
+      "FROM users " +
       "INNER JOIN decks ON users.id = decks.user_id " +
-      "INNER JOIN cards ON users.id = cards.user_id " +
+      "LEFT JOIN cards ON users.id = cards.user_id " +
       "AND cards.deck_id = decks.id " +
       "WHERE users.id = $1 " +
-      "GROUP BY name";
+      "GROUP BY decks.id, name";
 
     const result = await pool.query(sql1, [req.query.id]);
 
-    // console.log(result.rows);
-    res.json({ decks: result.rows });
+    const decks = result.rows.map((deck) => {
+      return {
+        id: deck.id,
+        name: deck.name,
+        cardsToStudy: +deck.cards_to_study,
+      };
+    });
+    res.json({ decks });
+  }
+});
+
+app.post("/api/decks", async (req, res) => {
+  if (req.body) {
+    const deckName = req.body.deckName;
+    const userId = req.body.userId;
+    const errorsToSend = [];
+
+    if (deckName.length < 2 || deckName.length > 15) {
+      errorsToSend.push("Invalid deck name");
+    }
+
+    if (errorsToSend.length !== 0) {
+      console.log(errorsToSend);
+      res.status(422).json({ error: errorsToSend });
+    } else {
+      const sql =
+        "INSERT INTO decks (name, user_id) VALUES ($1, $2) RETURNING id";
+      const result = await pool.query(sql, [deckName, userId]);
+
+      const newDeck = {
+        id: result.rows[0].id,
+        name: deckName,
+        cardsToStudy: 0,
+      };
+
+      res.json(newDeck);
+    }
+  } else {
+    res.sendStatus(400);
   }
 });
 

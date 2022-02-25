@@ -34,7 +34,7 @@
           class="textInput"
           v-model.lazy="password"
         />
-        <button type="submit" class="btn">Login</button>
+        <button type="submit" class="btn btn-primary">Login</button>
       </form>
       <p class="acc">
         Don't have an account?
