@@ -38,26 +38,67 @@ app.get("/api/decks", verifyToken, async (req, res) => {
     }
   });
   if (tokenVerified) {
-    const sql1 =
-      "SELECT decks.id, name, " +
-      "COUNT(*) FILTER (WHERE cards.due_date < now()) AS cards_to_study " +
-      "FROM users " +
-      "INNER JOIN decks ON users.id = decks.user_id " +
-      "LEFT JOIN cards ON users.id = cards.user_id " +
-      "AND cards.deck_id = decks.id " +
-      "WHERE users.id = $1 " +
-      "GROUP BY decks.id, name";
+    const sql1 = `SELECT p.id, p.name, p.cards_to_study,
+      COUNT(*) FILTER (WHERE s.deck_id = p.id AND s.card_study_end::date = CURRENT_DATE) AS cards_studied
+      FROM (
+        SELECT decks.id, name,
+        COUNT(*) FILTER (WHERE cards.due_date < now()) AS cards_to_study
+        FROM users
+        INNER JOIN decks ON users.id = decks.user_id
+        LEFT JOIN cards ON users.id = cards.user_id AND cards.deck_id = decks.id
+        WHERE users.id = $1
+        GROUP BY decks.id, name
+      ) AS p
+      LEFT JOIN studied_cards AS s ON s.deck_id = p.id
+      GROUP BY p.id, p.name, p.cards_to_study;`;
+    // "SELECT decks.id, name, " +
+    // "COUNT(*) FILTER (WHERE cards.due_date < now()) AS cards_to_study " +
+    // "FROM users " +
+    // "INNER JOIN decks ON users.id = decks.user_id " +
+    // "LEFT JOIN cards ON users.id = cards.user_id " +
+    // "AND cards.deck_id = decks.id " +
+    // "WHERE users.id = $1 " +
+    // "GROUP BY decks.id, name";
 
     const result = await pool.query(sql1, [req.query.id]);
+
+    console.log(result.rows);
 
     const decks = result.rows.map((deck) => {
       return {
         id: deck.id,
         name: deck.name,
         cardsToStudy: +deck.cards_to_study,
+        cardsStudied: +deck.cards_studied,
       };
     });
     res.json({ decks });
+  }
+});
+
+app.get("/api/decks/:id", verifyToken, async (req, res) => {
+  let tokenVerified = false;
+  jwt.verify(req.token, process.env.TOKEN_SECRET, (err) => {
+    if (err) {
+      res.sendStatus(401);
+    } else {
+      tokenVerified = true;
+    }
+  });
+  if (tokenVerified) {
+    console.log(req.params.id);
+    const sql1 = `SELECT * FROM cards WHERE user_id = $1 AND deck_id = $2;`;
+    const result = await pool.query(sql1, [req.query.id, req.params.id]);
+
+    const cards = result.rows.map((card) => {
+      return {
+        id: card.id,
+        front: card.front,
+        back: card.back,
+      };
+    });
+    console.log(cards);
+    res.json({ cards });
   }
 });
 

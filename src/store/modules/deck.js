@@ -2,6 +2,7 @@ import axios from "axios";
 
 export const namespaced = true;
 
+// defuald decks should be getted from localStorage
 export const state = {
   cookies: false,
   decks: [
@@ -12,12 +13,19 @@ export const state = {
     //   updatedAt: "2022-15-01",
     // },
   ],
+  selectedDeck: [],
 };
 
 export const mutations = {
   SET_DECKS_DATA(state, decksData) {
     state.decks = decksData;
     localStorage.setItem("decks", JSON.stringify(decksData));
+  },
+
+  SET_CARDS(state, cardsData) {
+    // console.log(cardsData);
+    state.selectedDeck = cardsData;
+    localStorage.setItem("cards", JSON.stringify(cardsData));
   },
 
   CLEAR_DECKS_DATA() {
@@ -44,6 +52,24 @@ export const actions = {
         })
         .then(({ data }) => {
           commit("SET_DECKS_DATA", data.decks);
+        });
+    }
+  },
+  getCards({ commit, state }, { userId, deckId }) {
+    const cardsString = localStorage.getItem("cards");
+    const cardsData = JSON.parse(cardsString);
+
+    if (state.cookies && cardsData && cardsData.length !== 0) {
+      const cardsData = JSON.parse(cardsString);
+      commit("SET_CARDS", cardsData);
+    } else {
+      return axios
+        .get(`//localhost:3000/api/decks/${deckId}`, {
+          params: { id: userId },
+        })
+        .then(({ data }) => {
+          // console.log(data);
+          commit("SET_CARDS", data.cards);
         });
     }
   },

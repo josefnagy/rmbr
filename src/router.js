@@ -5,6 +5,7 @@ import LoginUser from "@/views/LoginUser";
 import RegisterUser from "@/views/RegisterUser";
 import AddDeck from "@/components/layout/AddDeck";
 import DeckStudy from "@/views/DeckStudy";
+import ManageDecks from "@/views/ManageDecks";
 
 Vue.use(Router);
 
@@ -24,6 +25,12 @@ export const router = new Router({
           component: AddDeck,
         },
       ],
+    },
+    {
+      path: "/decks/:id",
+      name: "manageDecks",
+      component: ManageDecks,
+      meta: { requiresAuth: true },
     },
     {
       path: "/decks/:id/study",

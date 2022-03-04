@@ -34,7 +34,7 @@ import Header from "@/components/layout/Header";
 import DecksList from "@/components/DecksList";
 import BackgroundImage from "@/components/ui/BackgroundImage";
 
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 
 import { mapState } from "vuex";
 
@@ -50,7 +50,7 @@ export default {
   created() {
     this.$store.dispatch("deck/getDecks", this.user.user.id);
     this.isLoading = false;
-    console.log(dayjs(Date.now()).toISOString());
+    // console.log(dayjs(Date.now()).toISOString());
   },
 
   methods: {
@@ -74,13 +74,6 @@ export default {
 </script>
 
 <style scoped>
-.overlay {
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.76);
-  width: 100%;
-  height: 100%;
-}
-
 .page-wrapper {
   position: relative;
   height: 100%;

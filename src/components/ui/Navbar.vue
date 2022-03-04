@@ -7,6 +7,15 @@
         >
       </li>
       <li>
+        <router-link
+          class="link"
+          :class="isActive"
+          :to="{ name: 'manageDecks', params: { id: 1 } }"
+          exact
+          >Manage Decks</router-link
+        >
+      </li>
+      <li>
         <router-link class="link" active-class="active" to="/settings"
           >Settings</router-link
         >
@@ -25,6 +34,11 @@ export default {
     onLogout() {
       this.$store.dispatch("user/logout");
       this.$router.push({ name: "login" });
+    },
+  },
+  computed: {
+    isActive() {
+      return this.$route.name === "manageDecks" ? "active" : "";
     },
   },
 };

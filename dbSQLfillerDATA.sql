@@ -81,12 +81,28 @@ CREATE TABLE studied_cards (
 	study_type study_type DEFAULT 'normal',
 	user_id integer REFERENCES users(id) NOT NULL,
 	card_id integer REFERENCES cards(id) NOT NULL,
+	deck_id integer REFERENCES decks(id) NOT NULL,
 	card_study_start TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	card_study_end TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	grade decimal NOT NULL
 );
 
-INSERT INTO studied_cards (study_type, user_id, card_id, card_study_start, card_study_end, grade)
+INSERT INTO studied_cards (study_type, user_id, card_id, deck_id, card_study_start, card_study_end, grade)
 VALUES
-	('normal', 1, 1, '2022-02-21 19:10:25-07', '2022-02-21 19:10:55-07', 5),
-	('normal', 1, 1, '2022-02-23 7:10:25-07', '2022-02-23 7:11:50-07', 3.5);
+	('normal', 1, 1, 1, '2022-02-21 19:10:25-07', '2022-02-21 19:10:55-07', 5),
+	('normal', 1, 5, 2, '2022-02-21 19:10:25-07', '2022-02-21 19:10:55-07', 5),
+	('normal', 1, 1, 1, '2022-02-23 7:10:25-07', '2022-02-23 7:11:50-07', 3.5);
+
+
+SELECT p.id, p.name, p.cards_to_study, COUNT(*) FILTER (WHERE s.deck_id = p.id) AS cards_studied
+FROM (
+	SELECT decks.id, name,
+	COUNT(*) FILTER (WHERE cards.due_date < now()) AS cards_to_study
+	FROM users
+	INNER JOIN decks ON users.id = decks.user_id
+	LEFT JOIN cards ON users.id = cards.user_id AND cards.deck_id = decks.id
+	WHERE users.id = 1
+	GROUP BY decks.id, name
+) AS p
+LEFT JOIN studied_cards AS s ON s.deck_id = p.id
+GROUP BY p.id, p.name, p.cards_to_study;
