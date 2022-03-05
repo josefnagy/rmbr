@@ -6,6 +6,7 @@ import RegisterUser from "@/views/RegisterUser";
 import AddDeck from "@/components/layout/AddDeck";
 import DeckStudy from "@/views/DeckStudy";
 import ManageDecks from "@/views/ManageDecks";
+import CardAdd from "@/components/cards/CardAdd";
 
 Vue.use(Router);
 
@@ -31,6 +32,13 @@ export const router = new Router({
       name: "manageDecks",
       component: ManageDecks,
       meta: { requiresAuth: true },
+      children: [
+        {
+          path: "addCard",
+          name: "addCard",
+          component: CardAdd,
+        },
+      ],
     },
     {
       path: "/decks/:id/study",

@@ -4,7 +4,7 @@
     <div class="wrapper">
       <div class="header">
         <h2>{{ deckName }}</h2>
-        <button class="btn btn-primary btn-add">+</button>
+        <button class="btn btn-primary btn-add" @click="onAddDeck">+</button>
       </div>
       <div class="decks">
         <div class="deck-picker">
@@ -21,6 +21,9 @@
         </div>
         <DataGrid :columns="columns" :source="rows" />
       </div>
+    </div>
+    <div v-if="isAddDeckOpen" @click.self="close" class="overlay">
+      <router-view />
     </div>
   </div>
 </template>
@@ -46,7 +49,14 @@ export default {
       rows: [],
     };
   },
-  methods: {},
+  methods: {
+    onAddDeck() {
+      this.$router.push({ name: "addCard" });
+    },
+    close() {
+      this.$router.push({ name: "manageDecks" });
+    },
+  },
 
   created() {
     this.$store
@@ -79,6 +89,10 @@ export default {
         (deck) => +deck.id === +this.$route.params.id
       );
       return deck.name;
+    },
+
+    isAddDeckOpen() {
+      return this.$route.name === "addCard";
     },
   },
 };
