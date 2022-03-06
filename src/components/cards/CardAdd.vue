@@ -1,12 +1,7 @@
 <template>
-  <Modal heading="Add Card">
+  <Modal heading="Add Card" :close="onClose">
     <div class="addDeck">
-      <input
-        type="text"
-        class="textInput"
-        v-model.lazy="deckName"
-        placeholder="Deck name"
-      />
+      <Editor v-model="content" />
       <button class="btn btn-primary modal-btn" @click="onAddCard">
         Add Card
       </button>
@@ -16,22 +11,28 @@
 
 <script>
 import Modal from "@/components/ui/Modal";
+import Editor from "@/components/ui/Editor";
 export default {
   components: {
     Modal,
+    Editor,
   },
   data() {
     return {
-      deckName: "",
+      content: {},
     };
   },
   methods: {
     onAddCard() {
-      this.$store.dispatch("deck/addDeck", {
-        deckName: this.deckName,
-        userId: this.$store.state.user.user.id,
-      });
-      this.$router.push({ name: "decks" });
+      console.log(this.content);
+      // this.$store.dispatch("deck/addDeck", {
+      //   deckName: this.deckName,
+      //   userId: this.$store.state.user.user.id,
+      // });
+      // this.$router.push({ name: "decks" });
+    },
+    onClose() {
+      this.$router.push({ name: "manageDecks" });
     },
   },
 };
@@ -41,6 +42,8 @@ export default {
 .addDeck {
   display: flex;
   flex-direction: column;
+  min-width: 50rem;
+  min-height: 50rem;
 }
 
 .modal-btn {

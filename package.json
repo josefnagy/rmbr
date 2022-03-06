@@ -11,6 +11,8 @@
   "dependencies": {
     "@fontsource/archivo": "^4.5.2",
     "@fontsource/roboto": "^4.5.3",
+    "@tiptap/starter-kit": "^2.0.0-beta.183",
+    "@tiptap/vue-2": "^2.0.0-beta.77",
     "axios": "^0.26.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.2",

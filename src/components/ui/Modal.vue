@@ -1,7 +1,10 @@
 <template>
   <div class="modal">
     <div class="wrapper">
-      <h4>{{ heading }}</h4>
+      <div class="header">
+        <h4>{{ heading }}</h4>
+        <button class="btn btn-primary" @click="close">X</button>
+      </div>
       <p class="content"><slot></slot></p>
     </div>
   </div>
@@ -10,7 +13,7 @@
 <script>
 export default {
   name: "Modal",
-  props: ["heading"],
+  props: ["heading", "close"],
 };
 </script>
 
@@ -28,6 +31,11 @@ export default {
   padding: 1.5rem 4rem;
   color: $black;
   border: 1px solid $black;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
 }
 
 .content {

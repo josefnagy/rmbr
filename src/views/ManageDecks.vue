@@ -54,7 +54,7 @@ export default {
       this.$router.push({ name: "addCard" });
     },
     close() {
-      this.$router.push({ name: "manageDecks" });
+      // this.$router.push({ name: "manageDecks" });
     },
   },
 
@@ -122,6 +122,8 @@ export default {
   width: 3rem;
   padding: 0.9rem;
   margin-left: 4rem;
+  display: grid;
+  place-content: center;
 }
 
 h2 {
